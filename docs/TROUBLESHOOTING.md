@@ -138,9 +138,10 @@ sets `Cache-Control: no-store` but the HTML does not.
 
 ### The page is blank and the console shows a JS error
 
-`public/app.js` is a classic script, not a module. A syntax error kills the whole
-file, so nothing renders. Open the console and read the first error — it is
-almost always a stray character from an edit.
+`public/app.js` is one self-contained module: a syntax error anywhere in it kills
+the whole file and nothing renders. Open the console and read the *first* error —
+it is almost always a stray character from an edit. Because the file imports
+nothing, a failure cannot be blamed on module resolution.
 
 ### `/api/check-all` hangs for a minute
 
