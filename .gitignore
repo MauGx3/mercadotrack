@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+
+# local database (contains your irreplaceable price history)
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# local config — holds OAuth tokens and a Telegram bot token
+config.json
+
+# logs and editor noise
+*.log
+.DS_Store
+.idea/
+.vscode/

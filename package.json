@@ -1,0 +1,37 @@
+{
+  "name": "mercadotrack",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Keepa-style price tracking and alerts for Mercado Livre (consumer edition)",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "keywords": [
+    "mercado-livre",
+    "price-tracker",
+    "keepa",
+    "playwright",
+    "sqlite",
+    "price-history"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MauGx3/mercadotrack.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MauGx3/mercadotrack/issues"
+  },
+  "scripts": {
+    "start": "node --no-warnings server.mjs",
+    "check": "node --no-warnings bin/check.mjs",
+    "add": "node --no-warnings bin/add.mjs",
+    "list": "node --no-warnings bin/list.mjs",
+    "seed": "node --no-warnings bin/seed.mjs",
+    "setup": "playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.49.1"
+  }
+}
