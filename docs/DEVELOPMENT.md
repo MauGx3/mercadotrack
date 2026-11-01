@@ -86,9 +86,13 @@ mercadotrack/
 
 ## Conventions
 
-**ESM only.** `"type": "module"`, every file `.mjs`, `import`/`export` only. No
-CommonJS anywhere, including the browser-side file (which is a classic script,
-not a module, so it uses no imports at all).
+**ESM only on the server.** `"type": "module"`, every Node file `.mjs`,
+`import`/`export` only, no CommonJS anywhere. `public/app.js` is loaded as
+`<script type="module">` but deliberately imports nothing: it is a single
+self-contained file, so the UI needs no bundler and no module resolution at
+runtime. Keep it that way — adding an `import` to it means adding a build step or
+relying on the browser resolving bare specifiers, and neither is worth it for one
+file.
 
 **Node built-ins, no utility libraries.** `node:http`, `node:sqlite`,
 `node:fs/promises`, `node:path`. If you find yourself reaching for Express or
@@ -200,14 +204,16 @@ poller, the database and the HTTP layer.
 
 ### Watch the poller
 
-The server logs one line per item:
+`server.mjs` and `bin/check.mjs` print one line per item, so a failing item is
+visible without opening the database:
 
 ```
-[poller] fone-bluetooth: R$ 329,90 (1 alerta)
-[poller] item 3 falhou (1/8): Could not read a price (title: Just a moment...)
+[poll] next check in 63 min (2026-11-01T14:20:00.000Z)
+  ✓ Fone Bluetooth Over-Ear — R$ 329,90  ⚡ new_low
+  ✗ Fone Bluetooth Over-Ear — Could not read a price (page title: "Just a moment...")
 ```
 
-`error_streak` in the database is the durable version of that second line.
+`error_streak` in the database is the durable version of the `✗` line.
 
 ### Inspect the database
 
@@ -248,8 +254,10 @@ function is the reason alert behaviour is testable.
 
 ### Add a chart range
 
-`public/app.js` — one entry in the range table plus a bucket size. The data is
-already fully client-side; no server change.
+Add one button to the `#range-picker` group in `public/index.html` with a
+`data-days` value (`0` means all time). `app.js` reads it into `state.rangeDays`
+and re-renders from the history it already holds, so there is no server change and
+no refetch.
 
 ### Change the poll cadence
 
