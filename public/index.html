@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MercadoTrack — histórico de preços do Mercado Livre</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📉</text></svg>"
+    />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M3 17l5-6 4 3 5-7 4 4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <div>
+            <h1>MercadoTrack</h1>
+            <p class="tagline">histórico de preços e alertas</p>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="status" id="status" title="Estado do rastreio">
+            <span class="dot" id="status-dot"></span>
+            <span id="status-text">carregando…</span>
+          </div>
+          <button class="btn btn-ghost" id="btn-alerts" title="Alertas">
+            Alertas <span class="badge hidden" id="alert-badge">0</span>
+          </button>
+          <button class="btn btn-primary" id="btn-check-all">Verificar tudo</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <!-- ---------------------------- sidebar ---------------------------- -->
+        <aside class="sidebar">
+          <form class="add-form" id="add-form">
+            <label class="field">
+              <span class="field-label">Adicionar anúncio</span>
+              <input
+                id="add-input"
+                type="text"
+                placeholder="Cole o link do Mercado Livre…"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </label>
+            <div class="add-row">
+              <label class="field compact">
+                <span class="field-label">Alvo (R$)</span>
+                <input id="add-target" type="number" min="0" step="0.01" placeholder="opcional" />
+              </label>
+              <label class="field compact">
+                <span class="field-label">Queda (%)</span>
+                <input id="add-drop" type="number" min="1" max="90" step="1" placeholder="ex. 10" />
+              </label>
+            </div>
+            <button class="btn btn-primary wide" type="submit" id="add-submit">Rastrear</button>
+            <p class="hint" id="add-hint"></p>
+          </form>
+
+          <div class="list-head">
+            <h2>Monitorados</h2>
+            <span class="count" id="item-count">0</span>
+          </div>
+          <ul class="watchlist" id="watchlist"></ul>
+        </aside>
+
+        <!-- ----------------------------- detail ---------------------------- -->
+        <section class="detail" id="detail">
+          <div class="empty" id="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M3 17l5-6 4 3 5-7 4 4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <h2>Nenhum anúncio selecionado</h2>
+            <p>
+              Cole um link do Mercado Livre à esquerda para começar a registrar o preço.
+              Quanto mais tempo rodando, mais completo fica o histórico.
+            </p>
+          </div>
+
+          <div class="detail-body hidden" id="detail-body">
+            <div class="detail-head">
+              <img class="thumb" id="d-image" alt="" />
+              <div class="detail-titles">
+                <h2 id="d-title">—</h2>
+                <div class="detail-meta">
+                  <span id="d-seller"></span>
+                  <span class="sep" id="d-sep">·</span>
+                  <a id="d-link" href="#" target="_blank" rel="noopener">abrir no Mercado Livre ↗</a>
+                </div>
+              </div>
+              <div class="price-now">
+                <div class="price-label">preço atual</div>
+                <div class="price-value" id="d-price">—</div>
+                <div class="deal" id="d-deal"></div>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-head">
+                <div class="segmented" id="range-picker" role="group" aria-label="Período">
+                  <button data-days="7">7d</button>
+                  <button data-days="30" class="active">30d</button>
+                  <button data-days="90">90d</button>
+                  <button data-days="365">1a</button>
+                  <button data-days="0">tudo</button>
+                </div>
+                <div class="chart-legend">
+                  <span class="key"><i class="swatch price"></i>preço</span>
+                  <span class="key"><i class="swatch min"></i>mínima</span>
+                  <span class="key"><i class="swatch max"></i>máxima</span>
+                </div>
+              </div>
+              <div class="chart-wrap" id="chart-wrap">
+                <svg id="chart" preserveAspectRatio="none"></svg>
+                <div class="tooltip hidden" id="tooltip"></div>
+              </div>
+            </div>
+
+            <div class="stats-grid" id="stats-grid"></div>
+
+            <div class="detail-settings">
+              <label class="field compact">
+                <span class="field-label">Preço-alvo (R$)</span>
+                <input id="d-target" type="number" min="0" step="0.01" placeholder="—" />
+              </label>
+              <label class="field compact">
+                <span class="field-label">Avisar em queda de (%)</span>
+                <input id="d-drop" type="number" min="1" max="90" step="1" placeholder="—" />
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="d-active" />
+                <span>Rastreando</span>
+              </label>
+              <div class="spacer"></div>
+              <button class="btn btn-ghost" id="d-check">Verificar agora</button>
+              <button class="btn btn-danger" id="d-delete">Remover</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ------------------------------ alerts drawer ------------------------------ -->
+    <div class="drawer-scrim hidden" id="drawer-scrim"></div>
+    <aside class="drawer hidden" id="drawer" aria-label="Alertas">
+      <div class="drawer-head">
+        <h2>Alertas</h2>
+        <button class="icon-btn" id="drawer-close" aria-label="Fechar">✕</button>
+      </div>
+      <ul class="alert-list" id="alert-list"></ul>
+    </aside>
+
+    <div class="toast-stack" id="toasts"></div>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
