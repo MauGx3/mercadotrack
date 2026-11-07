@@ -281,8 +281,15 @@ async function serveStatic(req, res, pathname) {
 /* -------------------------------- server -------------------------------- */
 
 const server = createServer(async (req, res) => {
-  const url = new URL(req.url, `http://${req.headers.host ?? 'localhost'}`);
-  const pathname = decodeURIComponent(url.pathname);
+  // Parse inside a guard: a malformed escape (e.g. "/%E0") makes
+  // decodeURIComponent throw, and an uncaught rejection here would take the
+  // whole server, and the scheduler with it, down.
+  let pathname;
+  try {
+    pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+  } catch {
+    return json(res, 400, { error: 'URL inválida.' });
+  }
 
   try {
     for (const r of routes) {
