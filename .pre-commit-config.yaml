@@ -1,0 +1,21 @@
+# Lightweight hygiene checks. They need no Node toolchain, so pre-commit.ci
+# runs them as-is. Prettier/ESLint are left out on purpose: the project has no
+# formatter config, and adding one would reformat every file.
+ci:
+  autofix_commit_msg: 'chore: apply pre-commit fixes'
+  autoupdate_commit_msg: 'chore: update pre-commit hooks'
+  autoupdate_schedule: monthly
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-json
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: check-added-large-files
