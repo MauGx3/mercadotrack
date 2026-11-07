@@ -140,7 +140,7 @@ function renderWatchlist() {
       delta == null ? '' : `${delta > 0 ? '+' : ''}${delta.toFixed(1)}% vs mediana`;
 
     li.innerHTML = `
-      <img class="watch-thumb" src="${item.image || ''}" alt="" loading="lazy"
+      <img class="watch-thumb" src="${escapeHtml(item.image)}" alt="" loading="lazy"
            onerror="this.style.visibility='hidden'" />
       <div class="watch-main">
         <p class="watch-title">${escapeHtml(item.title)}</p>
