@@ -278,11 +278,50 @@ async function serveStatic(req, res, pathname) {
   }
 }
 
+/* ------------------------------ local guard ----------------------------- */
+
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
+
+const hostOf = (value) => {
+  try {
+    return new URL(`http://${value}`).hostname;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * The API has no auth because it only listens on loopback, but a page on any
+ * website can still reach it through the user's browser:
+ *   - a cross-site form or fetch POST (text/plain is a "simple" request, and
+ *     readBody parses JSON regardless of Content-Type) can add items, run
+ *     checks or stop the scheduler;
+ *   - DNS rebinding points an attacker hostname at 127.0.0.1 and reads the
+ *     watchlist as if same-origin.
+ * Requiring a loopback Host defeats rebinding; requiring a loopback Origin on
+ * writes defeats cross-site requests. curl and the CLI send no Origin.
+ */
+function isLocalRequest(req) {
+  if (!LOCAL_HOSTS.has(hostOf(req.headers.host ?? ''))) return false;
+  if (req.method === 'GET' || req.method === 'HEAD') return true;
+  const origin = req.headers.origin;
+  if (origin == null) return true;
+  try {
+    return LOCAL_HOSTS.has(new URL(origin).hostname);
+  } catch {
+    return false;
+  }
+}
+
 /* -------------------------------- server -------------------------------- */
 
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host ?? 'localhost'}`);
   const pathname = decodeURIComponent(url.pathname);
+
+  if (pathname.startsWith('/api/') && !isLocalRequest(req)) {
+    return json(res, 403, { error: 'Requisição de origem não permitida.' });
+  }
 
   try {
     for (const r of routes) {
