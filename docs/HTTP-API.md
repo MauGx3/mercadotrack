@@ -7,6 +7,10 @@ CORS. It binds to **`127.0.0.1` only**, so nothing is exposed to your network.
 - Port override: `MT_PORT` env var, or `port` in `config.json`
 - Request bodies: JSON, **max 1 MB** (larger requests are rejected)
 - Responses: JSON with `Cache-Control: no-store`
+- `/api/*` requires a loopback `Host` (`localhost`, `127.0.0.1`, `[::1]`), and
+  writes that carry an `Origin` header must come from a loopback origin.
+  Anything else gets `403`. This blocks other websites (cross-site requests,
+  DNS rebinding) from driving the API through your browser.
 - Errors: `{ "error": "mensagem" }` with a 4xx/5xx status. Messages are in
   Portuguese because they are rendered directly in the UI.
 
